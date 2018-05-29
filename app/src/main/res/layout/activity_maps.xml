@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <AutoCompleteTextView
+        android:id="@+id/et_location_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/activity_maps_bt_submit"
+        android:background="@android:color/transparent"
+        android:hint="@string/choose_starting_point"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="8dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/et_location_one"
+        android:layout_toStartOf="@+id/activity_maps_bt_submit"
+        android:background="@color/colorPrimary" />
+
+    <AutoCompleteTextView
+        android:id="@+id/et_location_two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/et_location_one"
+        android:layout_toStartOf="@+id/activity_maps_bt_submit"
+        android:background="@android:color/transparent"
+        android:hint="@string/choose_destination"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="8dp" />
+
+    <Button
+        android:id="@+id/activity_maps_bt_submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/et_location_two"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/et_location_one"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="@string/go"
+        android:textColor="@android:color/white" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/et_location_two"
+        tools:context="com.krunal3kapadiya.gmaps.MapsActivity" />
+</RelativeLayout>
