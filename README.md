@@ -1,4 +1,4 @@
-# G Maps [![Build Status](https://travis-ci.org/krunal3kapadiya/GoogleMapsDemo.svg?branch=master)](https://travis-ci.org/krunal3kapadiya/GoogleMapsDemo)
+# G Maps [![Build Status](https://travis-ci.org/krunal3kapadiya/G-Maps.svg?branch=master)](https://travis-ci.org/krunal3kapadiya/GoogleMapsDemo)
 This demo is to use the google maps feature very quickly. All basic things at one place. 
 
 ## How to contribute?
