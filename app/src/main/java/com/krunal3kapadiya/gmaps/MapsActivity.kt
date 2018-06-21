@@ -1,38 +1,39 @@
 package com.krunal3kapadiya.gmaps
 
-import android.Manifest
+import android.annotation.SuppressLint
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
+import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationListener
+import com.google.android.gms.common.api.ResultCallback
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.android.synthetic.main.info_window_layout.view.*
 import java.util.*
 
 
 class MapsActivity : FragmentActivity(),
         OnMapReadyCallback,
-        LocationListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
-
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks {
 
     companion object {
         fun launch(context: Context) {
@@ -41,20 +42,18 @@ class MapsActivity : FragmentActivity(),
         }
     }
 
+    private var map: GoogleMap? = null
+    private var toDestList: ArrayList<LatLng>? = null
+    private var pathOneLocationArray: ArrayList<LatLng>? = null
+    private var pathTwoLocationArray: ArrayList<LatLng>? = null
+    private var markerArrayList: ArrayList<Marker>? = null
+    private var adapter: PlaceAutocompleteAdapter? = null
+    var selectedPath = 1
 
-    override fun onConnected(p0: Bundle?) {
-        locationRequest = LocationRequest()
-        locationRequest!!.interval = 1000
-        locationRequest!!.fastestInterval = 1000
-        locationRequest!!.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation.addOnSuccessListener(this, {
-                map!!.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)))
-                map!!.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
-            })
-        }
-    }
+    var currentLatLng: LatLng = LatLng(23.0225, 72.5714)
+
+    private var distance1: String? = null
+    lateinit var viewModel: MapViewModel
 
     private var locationRequest: LocationRequest? = null
 
@@ -62,110 +61,123 @@ class MapsActivity : FragmentActivity(),
     override fun onConnectionSuspended(p0: Int) {}
 
     private lateinit var googleApiClient: GoogleApiClient
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    private var map: GoogleMap? = null
-    private var latLngArrayList: ArrayList<LatLng>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_maps)
 
-        buildGoogleApiClient()
+        googleApiClient = GoogleApiClient.Builder(this@MapsActivity)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(this@MapsActivity, 0 /* clientId */, this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(LocationServices.API)
+                .build()
 
-        checkPermissions()
+        toDestList = ArrayList()
+        markerArrayList = ArrayList()
+        pathOneLocationArray = ArrayList()
+        pathTwoLocationArray = ArrayList()
 
-        latLngArrayList = ArrayList()
+        viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
 
-        activity_maps_bt_submit.setOnClickListener({
+        mapView.onCreate(savedInstanceState)
+        mapView.onResume()
+        mapView.getMapAsync(this)
 
+        activity_maps_bt_submit.setOnClickListener {
+            viewModel.makeApiCallForDirection(toDestList!!)
+            viewModel.setBoundsToMap(toDestList!!)
+            viewModel.pathLocationOne.observe(this@MapsActivity, android.arch.lifecycle.Observer { pathOneLocationArray?.addAll(it!!) })
+            viewModel.pathLocationTwo.observe(this@MapsActivity, android.arch.lifecycle.Observer { pathTwoLocationArray?.addAll(it!!) })
+        }
+
+        adapter = PlaceAutocompleteAdapter(this@MapsActivity, googleApiClient, LatLngBounds(currentLatLng, currentLatLng), null)
+
+        et_location_one.setAdapter<PlaceAutocompleteAdapter>(adapter)
+        et_location_two.setAdapter<PlaceAutocompleteAdapter>(adapter)
+
+        et_location_one.onItemClickListener = autocompleteClickListener
+        et_location_one.onItemClickListener = autocompleteClickListener
+    }
+
+
+    override fun onConnected(p0: Bundle?) {}
+    override fun onConnectionFailed(p0: ConnectionResult) {}
+
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                super.onLocationResult(locationResult)
+                locationResult?.lastLocation?.let { map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), 10f)) }
+            }
+        }
+        val v = layoutInflater.inflate(R.layout.info_window_layout, null)
+        viewModel.animateZoomCamera.observe(this, android.arch.lifecycle.Observer { map?.animateCamera(CameraUpdateFactory.newLatLngBounds(it, 16)) })
+        viewModel.addMarker.observe(this, android.arch.lifecycle.Observer { map?.addMarker(MarkerOptions().position(it!!)) })
+        viewModel.clearMap.observe(this, android.arch.lifecycle.Observer { if (it!!) map?.clear() })
+        viewModel.addPolyLineOne.observe(this, android.arch.lifecycle.Observer {
+            val polyLine = map?.addPolyline(it)
+            polyLine?.isClickable = true
+            polyLine?.tag = "ONE"
         })
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        map?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
 
-
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-    }
-
-    private val PERMISSIONS_REQUEST_LOCATION: Int = 100
-
-    private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this@MapsActivity,
-                        Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this@MapsActivity,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this@MapsActivity,
-                            Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this@MapsActivity,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-                        PERMISSIONS_REQUEST_LOCATION)
+            // Use default InfoWindow frame
+            override fun getInfoWindow(arg0: Marker): View? {
+                return null
             }
-        } else {
-            // Permission has already been granted
-        }
-    }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSIONS_REQUEST_LOCATION -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+            // Defines the contents of the InfoWindow
+            override fun getInfoContents(arg0: Marker): View? {
+                val latLng = arg0.position
+
+                var isViewNotNull = false//check for the view
+
+                viewModel.showResultData(distance1?.replace("km", "")?.trim({ it <= ' ' }), latLng, toDestList!!)
+                viewModel.distOne.observe(this@MapsActivity, android.arch.lifecycle.Observer { distance1 = it })
+                viewModel.tvKmData.observe(this@MapsActivity, android.arch.lifecycle.Observer { v.tvMarkerSmartResultKM.text = it })
+                viewModel.destination.observe(this@MapsActivity, android.arch.lifecycle.Observer {
+                    v.tvMarkerDestinationVia.text = it
+                    isViewNotNull = true
+                })
+                viewModel.duration.observe(this@MapsActivity, android.arch.lifecycle.Observer { v.tvMarkerTimeDuration.text = it })
+                viewModel.errorMessage.observe(this@MapsActivity, android.arch.lifecycle.Observer {
+                    Toast.makeText(this@MapsActivity, it, Toast.LENGTH_SHORT).show()
+                })
+
+                return when {
+                    isViewNotNull -> v
+                    else -> null
                 }
-                return
             }
+        })
 
-        // Add other 'when' lines to check for other
-        // permissions this app might request.
-            else -> {
-                // Ignore all other requests.
+
+    }
+
+    /**
+     * autocompletion suggetion in map
+     */
+    private val autocompleteClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+        val item = adapter!!.getItem(position)
+        val placeId = item!!.placeId
+        val primaryText = item.getPrimaryText(null)
+        val placeResult = Places.GeoDataApi
+                .getPlaceById(googleApiClient, placeId)
+        placeResult.setResultCallback(ResultCallback<PlaceBuffer> { places ->
+            if (!places.status.isSuccess) {
+                places.release()
+                return@ResultCallback
             }
-        }
-    }
-
-
-    private fun buildGoogleApiClient() {
-        googleApiClient = GoogleApiClient.Builder(this)
-                .enableAutoManage(this, 0 /* clientId */, this)
-                .addApi(Places.GEO_DATA_API)
-                .build()
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        if (ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            return
-        } else {
-            map = googleMap
-            map?.isMyLocationEnabled = true
-        }
-    }
-
-    override fun onConnectionFailed(connectionResult: ConnectionResult) {
-        Toast.makeText(this,
-                "Could not connect to Google API Client: Error " + connectionResult.errorCode,
-                Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onLocationChanged(location: Location) {
+            val place = places.get(0)
+            toDestList!!.add(place.latLng)
+            map?.addMarker(MarkerOptions().position(place.latLng).title(place.name.toString()))?.let { markerArrayList!!.add(it) }
+            map?.moveCamera(CameraUpdateFactory.newLatLng(place.latLng))
+            places.release()
+        })
     }
 }

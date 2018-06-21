@@ -6,4 +6,5 @@
     <string name="choose_starting_point">Choose starting point</string>
     <string name="choose_destination">Choose destination</string>
     <string name="go">GO</string>
+    <string name="maps_key">[MAPKEY]</string>
 </resources>

@@ -4,31 +4,69 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "26.0.2"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    compileSdkVersion versions.compileSdk
     defaultConfig {
-        applicationId "com.krunal3kapadiya.googlemaps"
-        minSdkVersion 18
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        applicationId applicationID
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.compileSdk
+        versionCode 31
+        versionName "2.2.5"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', 'GOOGLE_BASE_URL', '"https://maps.googleapis.com"'
         }
+        debug {
+            buildConfigField 'String', 'GOOGLE_BASE_URL', '"https://maps.googleapis.com"'
+
+            multiDexEnabled true
+
+        }
+
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support.constraint:constraint-layout:1.1.0'
-    compile 'com.google.android.gms:play-services-maps:15.0.1'
-    compile 'com.google.android.gms:play-services-location:15.0.1'
-    compile 'com.google.android.gms:play-services-places:15.0.1'
-    testCompile 'junit:junit:4.12'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    api deps.multidex
+
+    api deps.kotlin.stdlib
+
+    api deps.reactivex.rxJava
+    api deps.reactivex.rxAndroid
+
+    api deps.square.retrofit
+    api deps.square.okhttp
+    api deps.square.gsonConverter
+    api deps.square.retrofitRxAdapter
+
+    //dagger
+    api deps.google.dagger
+    api deps.google.gson
+    kapt deps.android.roomCompiler
+    kapt deps.google.daggerProcessor
+    kapt deps.android.roomCompiler
+    api deps.android.roomRuntime
+    api deps.android.roomRx
+
+    api deps.android.lifecycleExt
+    api deps.android.lifecycleCommon
+
+    api 'com.android.support:appcompat-v7:27.1.1'
+    api 'com.android.support.constraint:constraint-layout:1.1.2'
+    api 'com.google.android.gms:play-services-maps:15.0.1'
+    api 'com.google.android.gms:play-services-location:15.0.1'
+    api 'com.google.android.gms:play-services-places:15.0.1'
+
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
     mavenCentral()
