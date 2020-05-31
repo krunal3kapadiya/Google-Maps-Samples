@@ -2,6 +2,8 @@
 Google Maps Samples is created to use the google maps feature very quickly.  
 All basic implementation used for map are at one place and handy to use.
 
+Get the [apk](misc/google_map_sample.apk) here.
+
 What you will find in this repositories?
 
 - Location updates
