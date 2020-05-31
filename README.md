@@ -32,8 +32,14 @@ val address = Geocoder(this, Locale.getDefault()).getFromLocation(
 |![screenshot](screenshots/screenshot_1.png)|![screenshot](screenshots/screenshot_2.png)|![screenshot](screenshots/screenshot_3.png)|
 
 
-## How to contribute?
-- Check out contribution :point_right: [Guidelines](./CONTRIBUTING.md)  
+## What you can contribute?
+- Any features related to Google Maps.
+
+
+## Contributing guidelines?
+- Add features and commit with it.
+- Update README with screenshot, APK and code snippet.
+- Create pull request for it.
 
 ## Questions
 
