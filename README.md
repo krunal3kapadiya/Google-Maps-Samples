@@ -25,7 +25,8 @@ val address = Geocoder(this, Locale.getDefault()).getFromLocation(
 ```
 
 ## Screenshots
-
+|S1|S2|S3|
+|:---:|:---:|:---:|
 |![screenshot](screenshots/screenshot_1.png)|![screenshot](screenshots/screenshot_2.png)|![screenshot](screenshots/screenshot_3.png)|
 
 
