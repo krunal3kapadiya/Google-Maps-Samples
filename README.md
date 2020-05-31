@@ -1,5 +1,33 @@
-# G Maps [![Build Status](https://travis-ci.org/krunal3kapadiya/G-Maps.svg?branch=master)](https://travis-ci.org/krunal3kapadiya/GoogleMapsDemo)
-This demo is to use the google maps feature very quickly. All basic things at one place. 
+# Google Maps Samples [![Build Status](https://travis-ci.org/krunal3kapadiya/G-Maps.svg?branch=master)](https://travis-ci.org/krunal3kapadiya/GoogleMapsDemo)
+Google Maps Samples is created to use the google maps feature very quickly.  
+All basic implementation used for map are at one place and handy to use.
+
+What you will find in this repositories?
+
+- Location updates
+> IN PROGRESS
+- Search Places
+> IN PROGRESS
+- Getting different types of maps
+```
+map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+map?.mapType = GoogleMap.MAP_TYPE_NORMAL
+map?.mapType = GoogleMap.MAP_TYPE_TERRAIN
+map?.mapType = GoogleMap.MAP_TYPE_HYBRID
+```
+- From LatLang get the address in the map
+```
+val address = Geocoder(this, Locale.getDefault()).getFromLocation(
+                                location.latitude,
+                                location.longitude,
+                                1
+                            )
+```
+
+## Screenshots
+
+|![screenshot](screenshots/screenshot_1.png)|![screenshot](screenshots/screenshot_2.png)|![screenshot](screenshots/screenshot_3.png)|
+
 
 ## How to contribute?
 - Check out contribution :point_right: [Guidelines](./CONTRIBUTING.md)  

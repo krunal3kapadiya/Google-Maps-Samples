@@ -1,9 +1,23 @@
 <resources>
-    <string name="app_name">G-Maps</string>
+    <string name="app_name">Google Map Samples</string>
     <string name="title_activity_maps">Map</string>
     <string name="place_details">&lt;b&gt;%1$s&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Place Id: %2$s&lt;/i&gt;&lt;br/&gt;Address: %3$s&lt;br/&gt;Phone: %4$s&lt;br/&gt;Website: %5$s</string>
     <string name="title_activity_maps2">Map</string>
     <string name="choose_starting_point">Choose starting point</string>
     <string name="choose_destination">Choose destination</string>
     <string name="go">GO</string>
+    <string name="about">About</string>
+
+    <string-array name="types_of_map">
+        <item>Satellite</item>
+        <item>Normal</item>
+        <item>Terrain</item>
+        <item>Hybrid</item>
+    </string-array>
+
+    <string name="text_developer_name">Krunal Kapadiya</string>
+    <string name="website_link">https://krunal3kapadiya.app</string>
+    <string name="github_link">https://github.com/krunal3kapadiya/NLP-ML-Kit</string>
+    <string name="view_github">View source code in GitHub</string>
+    <string name="love_text">Proudly made in Kotlin with ❤️ from 🇮🇳 </string>
 </resources>

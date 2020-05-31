@@ -1,17 +1,19 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
     defaultConfig {
-        applicationId "com.krunal3kapadiya.googlemaps"
-        minSdkVersion 18
-        targetSdkVersion 27
+        applicationId "com.krunal3kapadiya.gmaps"
+        minSdkVersion 26
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        android.defaultConfig.vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -22,14 +24,13 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support.constraint:constraint-layout:1.1.0'
-    compile 'com.google.android.gms:play-services-maps:15.0.1'
-    compile 'com.google.android.gms:play-services-location:15.0.1'
-    compile 'com.google.android.gms:play-services-places:15.0.1'
-    testCompile 'junit:junit:4.12'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.gms:play-services-places:17.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    testImplementation 'junit:junit:4.13'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

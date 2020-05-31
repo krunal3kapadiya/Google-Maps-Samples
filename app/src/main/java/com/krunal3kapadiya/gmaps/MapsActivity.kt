@@ -4,12 +4,17 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -27,12 +32,13 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import java.util.*
 
 
-class MapsActivity : FragmentActivity(),
+class MapsActivity : AppCompatActivity(),
         OnMapReadyCallback,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    val TAG = MapsActivity::class.java.simpleName
 
     companion object {
         fun launch(context: Context) {
@@ -49,10 +55,10 @@ class MapsActivity : FragmentActivity(),
         locationRequest!!.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation.addOnSuccessListener(this, {
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) {
                 map!!.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)))
                 map!!.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
-            })
+            }
         }
     }
 
@@ -78,9 +84,7 @@ class MapsActivity : FragmentActivity(),
 
         latLngArrayList = ArrayList()
 
-        activity_maps_bt_submit.setOnClickListener({
-
-        })
+        activity_maps_bt_submit.setOnClickListener {}
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -88,6 +92,29 @@ class MapsActivity : FragmentActivity(),
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+
+        fab_change_map.setOnClickListener {
+            val mapsType = resources.getStringArray(R.array.types_of_map)
+
+            AlertDialog.Builder(this).setTitle("Map Types")
+                    .setItems(mapsType) { _, which ->
+                        when (which) {
+                            0 -> {
+                                map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+                            }
+                            1 -> {
+                                map?.mapType = GoogleMap.MAP_TYPE_NORMAL
+                            }
+                            2 -> {
+                                map?.mapType = GoogleMap.MAP_TYPE_TERRAIN
+                            }
+                            3 -> {
+                                map?.mapType = GoogleMap.MAP_TYPE_HYBRID
+                            }
+                        }
+                    }.create().show()
+        }
     }
 
     private val PERMISSIONS_REQUEST_LOCATION: Int = 100
@@ -117,6 +144,17 @@ class MapsActivity : FragmentActivity(),
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_about-> AboutUsActivity.launch(this)
+        }
+        return true
+    }
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
@@ -132,8 +170,8 @@ class MapsActivity : FragmentActivity(),
                 return
             }
 
-        // Add other 'when' lines to check for other
-        // permissions this app might request.
+            // Add other 'when' lines to check for other
+            // permissions this app might request.
             else -> {
                 // Ignore all other requests.
             }
@@ -156,7 +194,23 @@ class MapsActivity : FragmentActivity(),
             return
         } else {
             map = googleMap
+            // this will add blue icon in map
             map?.isMyLocationEnabled = true
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        // Got last known location. In some rare situations this can be null.
+                        location?.let {
+                            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 16F))
+
+                            val address = Geocoder(this, Locale.getDefault()).getFromLocation(
+                                location.latitude,
+                                location.longitude,
+                                1
+                            )
+                            Log.d(TAG, "address  = ".plus(address[0]))
+                        }
+                    }
         }
     }
 

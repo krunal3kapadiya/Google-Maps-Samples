@@ -38,9 +38,9 @@
         android:id="@+id/activity_maps_bt_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/et_location_one"
         android:layout_alignBottom="@+id/et_location_two"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/et_location_one"
         android:background="@color/colorPrimary"
         android:gravity="center"
         android:text="@string/go"
@@ -53,4 +53,13 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/et_location_two"
         tools:context="com.krunal3kapadiya.gmaps.MapsActivity" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_change_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_map_black_24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp" />
 </RelativeLayout>
