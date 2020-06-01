@@ -6,24 +6,31 @@ Get the [apk](misc/google_map_sample.apk) here.
 
 What you will find in this repositories?
 
-- Location updates
+### Location updates
+#### 1. Getting last known location
+```
+LocationServices.getFusedLocationProviderClient(this).lastLocation
+        .addOnSuccessListener { location: Location? ->
+            // Got last known location. In some rare situations this can be null.
+            location?.let {
+                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 14F))
+            }
+        }
+```
+### Search Places
+
 > IN PROGRESS
-- Search Places
-> IN PROGRESS
-- Getting different types of maps
+
+### Getting different types of maps
 ```
 map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
 map?.mapType = GoogleMap.MAP_TYPE_NORMAL
 map?.mapType = GoogleMap.MAP_TYPE_TERRAIN
 map?.mapType = GoogleMap.MAP_TYPE_HYBRID
 ```
-- From LatLang get the address in the map
+### From LatLang get the address in the map
 ```
-val address = Geocoder(this, Locale.getDefault()).getFromLocation(
-                                location.latitude,
-                                location.longitude,
-                                1
-                            )
+val address = Geocoder(this, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
 ```
 
 ## Screenshots
