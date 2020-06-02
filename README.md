@@ -3,6 +3,8 @@
 Google Maps Samples is created to use the google maps feature very quickly.  
 All basic implementation used for map are at one place and handy to use.
 
+> Click this [ROUTING_MAP](ROUTING_MAP.md) file to see how you can route in your emulator.
+
 Get the [apk](misc/google_map_sample.apk) here.
 
 What you will find in this repositories?
@@ -50,8 +52,6 @@ Location.distanceBetween(
 |:---:|:---:|:---:|
 |![screenshot](screenshots/screenshot_1.png)|![screenshot](screenshots/screenshot_2.png)|![screenshot](screenshots/screenshot_3.png)|
 
-
-Click this [ROUTING_MAP](ROUTING_MAP.md) file to see how you can route in your emulator.
 
 ## What you can contribute?
 - Any features related to Google Maps.
