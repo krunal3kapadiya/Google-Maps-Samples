@@ -51,6 +51,8 @@ Location.distanceBetween(
 |![screenshot](screenshots/screenshot_1.png)|![screenshot](screenshots/screenshot_2.png)|![screenshot](screenshots/screenshot_3.png)|
 
 
+Click this [ROUTING_MAP](ROUTING_MAP.md) file to see how you can route in your emulator.
+
 ## What you can contribute?
 - Any features related to Google Maps.
 
