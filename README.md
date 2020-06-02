@@ -1,4 +1,5 @@
-# Google Maps Samples [![Build Status](https://travis-ci.org/krunal3kapadiya/G-Maps.svg?branch=master)](https://travis-ci.org/krunal3kapadiya/GoogleMapsDemo)
+# Google Maps Samples 
+
 Google Maps Samples is created to use the google maps feature very quickly.  
 All basic implementation used for map are at one place and handy to use.
 
@@ -33,6 +34,17 @@ map?.mapType = GoogleMap.MAP_TYPE_HYBRID
 val address = Geocoder(this, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
 ```
 
+### Get the distance between two LatLang
+
+```
+val results = FloatArray(1)
+Location.distanceBetween(
+    firstLocation.latitude, firstLocation.longitude,
+    secondLocation.latitude, secondLocation.longitude, results
+)
+// results[0] results in meter
+```
+
 ## Screenshots
 |S1|S2|S3|
 |:---:|:---:|:---:|
@@ -41,7 +53,6 @@ val address = Geocoder(this, Locale.getDefault()).getFromLocation(location.latit
 
 ## What you can contribute?
 - Any features related to Google Maps.
-
 
 ## Contributing guidelines?
 - Add features and commit with it.
