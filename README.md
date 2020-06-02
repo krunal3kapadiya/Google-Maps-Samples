@@ -1,5 +1,6 @@
 # Google Maps Samples 
 ![License](https://img.shields.io/github/license/krunal3kapadiya/Google-Maps-Samples.svg)
+[![Build Status](https://travis-ci.org/krunal3kapadiya/Google-Maps-Samples.svg?branch=master)](https://travis-ci.org/krunal3kapadiya/Google-Maps-Samples)
 ![RepoSize](https://img.shields.io/github/repo-size/krunal3kapadiya/Google-Maps-Samples)
 ![Languages](https://img.shields.io/github/languages/count/krunal3kapadiya/Google-Maps-Samples)
 [![Twitter](https://img.shields.io/badge/Twitter-%40krunal3kapadiya-blue.svg)](https://twitter.com/krunal3kapadiya)
