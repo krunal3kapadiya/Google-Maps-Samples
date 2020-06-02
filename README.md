@@ -1,4 +1,7 @@
 # Google Maps Samples 
+![License](https://img.shields.io/github/license/krunal3kapadiya/Google-Maps-Samples.svg)
+![RepoSize](https://img.shields.io/github/repo-size/krunal3kapadiya/Google-Maps-Samples)
+![Languages](https://img.shields.io/github/languages/count/krunal3kapadiya/Google-Maps-Samples)
 
 Google Maps Samples is created to use the google maps feature very quickly.  
 All basic implementation used for map are at one place and handy to use.
