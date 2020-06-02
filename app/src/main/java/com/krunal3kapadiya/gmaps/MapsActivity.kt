@@ -1,12 +1,16 @@
 package com.krunal3kapadiya.gmaps
 
 import android.Manifest
+import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -17,10 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationListener
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -28,6 +29,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.util.*
 
@@ -35,6 +38,7 @@ import java.util.*
 class MapsActivity : AppCompatActivity(),
         OnMapReadyCallback,
         LocationListener,
+        OnCompleteListener<Void>,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
@@ -44,6 +48,15 @@ class MapsActivity : AppCompatActivity(),
         fun launch(context: Context) {
             val intent = Intent(context, MapsActivity::class.java)
             context.startActivity(intent)
+        }
+        val ARG_IS_ENTERED_IN_REGION = "is_entered_in_region"
+
+        @JvmStatic
+        fun launch(context: Context, enterdInRegion: Boolean): Intent {
+            val intent = Intent(context, MapsActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(ARG_IS_ENTERED_IN_REGION, enterdInRegion)
+            return intent
         }
     }
 
@@ -77,6 +90,8 @@ class MapsActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_maps)
+
+        geofencingClient = LocationServices.getGeofencingClient(this)
 
         buildGoogleApiClient()
 
@@ -202,7 +217,8 @@ class MapsActivity : AppCompatActivity(),
                         // Got last known location. In some rare situations this can be null.
                         location?.let {
                             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 16F))
-
+                            addGeoFencing(LatLng(location.latitude, location.longitude))
+                            startService()
                             val address = Geocoder(this, Locale.getDefault()).getFromLocation(
                                 location.latitude,
                                 location.longitude,
@@ -211,6 +227,7 @@ class MapsActivity : AppCompatActivity(),
                             Log.d(TAG, "address  = ".plus(address[0]))
                         }
                     }
+
         }
     }
 
@@ -221,5 +238,101 @@ class MapsActivity : AppCompatActivity(),
     }
 
     override fun onLocationChanged(location: Location) {
+    }
+    lateinit var backGroundLocationUpdateService : BackgroundLocationService
+    var serviceBound = false
+
+    private val connection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            Log.d(TAG, "Service bound")
+            val binder =
+                service as BackgroundLocationService.RunServiceBinder
+            backGroundLocationUpdateService = binder.service
+            serviceBound = true
+//            calculateDistanceService.initLocationUpdate(initialLatLang)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Log.d(TAG, "Service disconnect")
+            serviceBound = false
+        }
+    }
+
+    private lateinit var geofencingClient: GeofencingClient
+    private var geofencePendingIntent: PendingIntent? = null
+
+    private fun addGeoFencing(latlang: LatLng) {
+        geofencingClient.addGeofences(getGeofencingRequest(latlang), getGeofencePendingIntent(this))
+            ?.addOnCompleteListener(this@MapsActivity)
+    }
+
+    private fun removeGeofences() {
+        geofencingClient.removeGeofences(getGeofencePendingIntent(this))
+            ?.addOnCompleteListener(this)
+    }
+
+    private fun getGeofencePendingIntent(context: Context?): PendingIntent? {
+        // Reuse the PendingIntent if we already have it.
+        if (geofencePendingIntent != null) {
+            return geofencePendingIntent
+        }
+        val intent =
+            Intent(context, GeofenceBroadcastReceiver::class.java)
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+        // addGeofences() and removeGeofences().
+        geofencePendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        return geofencePendingIntent
+    }
+
+    fun getGeofencingRequest(initialLatLang: LatLng): GeofencingRequest? {
+        val builder = GeofencingRequest.Builder()
+
+        // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
+        // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
+        // is already inside that geofence.
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT)
+
+        // Add the geofences to be monitored by geofencing service.
+        val mGeofenceList: ArrayList<Geofence>? = ArrayList()
+        mGeofenceList?.add(
+            Geofence.Builder()
+                .setRequestId(getString(R.string.app_name))
+                .setCircularRegion(
+                    initialLatLang.latitude,
+                    initialLatLang.longitude,
+                    15F
+                )
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setTransitionTypes(
+                    Geofence.GEOFENCE_TRANSITION_ENTER or
+                            Geofence.GEOFENCE_TRANSITION_EXIT
+                )
+                .build()
+        )
+
+        builder.addGeofences(mGeofenceList)
+
+        // Return a GeofencingRequest.
+        return builder.build()
+    }
+
+    fun startService() {
+        val i = Intent(this, BackgroundLocationService::class.java)
+        startService(i)
+        bindService(i, connection, 0)
+    }
+
+    fun stopService() {
+        Log.d(TAG, "On Stop Service Called")
+        BackgroundLocationService.stop(this)
+    }
+
+    override fun onComplete(task: Task<Void>) {
+
     }
 }

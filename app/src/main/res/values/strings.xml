@@ -20,4 +20,25 @@
     <string name="github_link">https://github.com/krunal3kapadiya/NLP-ML-Kit</string>
     <string name="view_github">View source code in GitHub</string>
     <string name="love_text">Proudly made in Kotlin with ❤️ from 🇮🇳 </string>
+    <string name="backgrund_message">Background Location Service is Running</string>
+
+    <string name="geofence_not_available">Geofence service is not available now</string>
+    <string name="geofence_too_many_geofences">Your app has registered too many geofences</string>
+    <string name="geofence_too_many_pending_intents">
+        You have provided too many PendingIntents to the addGeofences() call
+    </string>
+    <string name="unknown_geofence_error">
+        Unknown error: the Geofence service is not available now
+    </string>
+    <string name="geofence_transition_invalid_type">
+        Geofence transition error: invalid transition type %1$d
+    </string>
+    <!-- Transition type strings -->
+    <string name="geofence_transition_entered">Entered</string>
+    <string name="geofence_transition_exited">Exited</string>
+    <string name="unknown_geofence_transition">Unknown Transition</string>
+
+    <string name="geofences_added">Geofences added</string>
+    <string name="geofences_removed">Geofences removed</string>
+
 </resources>
