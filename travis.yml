@@ -81,3 +81,11 @@ script:
 branches:
   only:
     - master
+
+notifications:
+    webhooks: https://travis-for-jira-prod.toolsplus.app/travis/notifications?token=b6ec3949-b6cf-3325-9b12-7eb3f35f9eef
+    on_success: always
+    on_failure: always
+    on_start: always
+    on_cancel: always
+    on_error: always
