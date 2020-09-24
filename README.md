@@ -61,6 +61,10 @@ Location.distanceBetween(
 ## What you can contribute?
 - Any features related to Google Maps.
 
+## TODO
+- Add PolyLine
+- Add changing location with PolyLine
+
 ## Contributing guidelines?
 - Add features and commit with it.
 - Update README with screenshot, APK and code snippet.
